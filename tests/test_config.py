@@ -1,7 +1,7 @@
 import pytest
 
 from eyeokuri.app import build_config, parse_args
-from eyeokuri.config import GUARD_SIGNALS, SIGNALS, Config, StepConfig, dump_config, load_config
+from eyeokuri.config import GUARD_SIGNALS, SIGNALS, Config, StepConfig, apply_overrides, dump_config, load_config
 from eyeokuri.sources import EYE_OPENNESS, HEAD_POSE
 
 
@@ -254,3 +254,30 @@ def test_language_can_be_set_through_set():
 def test_unknown_language_is_rejected():
     with pytest.raises(ValueError, match="app.language must be one of auto, en, ja, zh-TW"):
         config_from("--set", "app.language=fr")
+
+
+def test_unknown_keys_in_a_config_file_are_ignored_with_a_warning(tmp_path, capsys):
+    path = tmp_path / "config.toml"
+    path.write_text(
+        "version = 1\nold_top = 1\n[eyes]\nopen_ratio = 0.8\nretired = true\n"
+        "[gestures.blink]\nsteps = [{ signal = \"eyes\", nope = 1 }]\n",
+        encoding="utf-8",
+    )
+    config = load_config(path)
+    assert config.eyes.open_ratio == 0.8
+    err = capsys.readouterr().err
+    assert "old_top" in err and "eyes.retired" in err and "gestures.blink.steps[0].nope" in err
+
+
+def test_unknown_key_from_set_is_still_rejected():
+    with pytest.raises(ValueError, match="Unknown config key: eyes.retired"):
+        apply_overrides(Config(), {"eyes": {"retired": 1}})
+
+
+def test_unknown_key_warnings_can_go_to_a_callback(tmp_path, capsys):
+    path = tmp_path / "config.toml"
+    path.write_text("version = 1\n[eyes]\nretired = true\n", encoding="utf-8")
+    messages: list[str] = []
+    load_config(path, messages.append)
+    assert len(messages) == 1 and "eyes.retired" in messages[0]
+    assert capsys.readouterr().err == ""

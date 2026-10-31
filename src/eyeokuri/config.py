@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import json
 import re
+import sys
 import tomllib
+from collections.abc import Callable
 from dataclasses import dataclass, field, fields, is_dataclass, replace
 from pathlib import Path
 from typing import Any
@@ -265,28 +267,33 @@ class Config:
     app: AppConfig = field(default_factory=AppConfig)
 
 
-def _merge(obj: Any, data: dict[str, Any], path: str) -> Any:
+def _merge(obj: Any, data: dict[str, Any], path: str, unknown: list[str] | None = None) -> Any:
+    """Merge ``data`` into ``obj``. An unknown key raises, unless ``unknown`` is a
+    list, which collects the key's path and skips it."""
     known = {f.name: f for f in fields(obj)}
     changes: dict[str, Any] = {}
     for key, value in data.items():
         if key not in known:
-            raise ValueError(f"Unknown config key: {path}{key}")
+            if unknown is None:
+                raise ValueError(f"Unknown config key: {path}{key}")
+            unknown.append(f"{path}{key}")
+            continue
         current = getattr(obj, key)
         if is_dataclass(current) or isinstance(current, dict):
             if not isinstance(value, dict):
                 raise ValueError(f"Config section {path}{key} must be a table")
         if is_dataclass(current):
-            changes[key] = _merge(current, value, f"{path}{key}.")
+            changes[key] = _merge(current, value, f"{path}{key}.", unknown)
         elif isinstance(current, dict):
             item = known[key].metadata["item"]
             merged = dict(current)
             for name, table in value.items():
                 if not isinstance(table, dict):
                     raise ValueError(f"Config section {path}{key}.{name} must be a table")
-                merged[name] = _merge(current.get(name, item()), table, f"{path}{key}.{name}.")
+                merged[name] = _merge(current.get(name, item()), table, f"{path}{key}.{name}.", unknown)
             changes[key] = merged
         elif isinstance(current, list) and "item" in known[key].metadata:
-            changes[key] = _merge_list(current, value, known[key].metadata["item"], f"{path}{key}")
+            changes[key] = _merge_list(current, value, known[key].metadata["item"], f"{path}{key}", unknown)
         else:
             # Fields that default to None are optional numbers.
             expected = float if current is None else type(current)
@@ -301,7 +308,9 @@ def _merge(obj: Any, data: dict[str, Any], path: str) -> Any:
     return replace(obj, **changes)
 
 
-def _merge_list(current: list[Any], value: Any, item: Any, path: str) -> list[Any]:
+def _merge_list(
+    current: list[Any], value: Any, item: Any, path: str, unknown: list[str] | None = None
+) -> list[Any]:
     """A list of tables replaces the list. A table keyed by index changes items
     in place, which is what ``--set gestures.blink.steps.1.after_min_s=0.4`` gives."""
     if isinstance(value, list):
@@ -309,7 +318,7 @@ def _merge_list(current: list[Any], value: Any, item: Any, path: str) -> list[An
         for i, entry in enumerate(value):
             if not isinstance(entry, dict):
                 raise ValueError(f"Config key {path}[{i}] must be a table")
-            merged.append(_merge(item(), entry, f"{path}[{i}]."))
+            merged.append(_merge(item(), entry, f"{path}[{i}].", unknown))
         return merged
     if isinstance(value, dict):
         merged = list(current)
@@ -320,7 +329,7 @@ def _merge_list(current: list[Any], value: Any, item: Any, path: str) -> list[An
                 )
             if not isinstance(entry, dict):
                 raise ValueError(f"Config key {path}[{index}] must be a table")
-            merged[int(index)] = _merge(merged[int(index)], entry, f"{path}[{index}].")
+            merged[int(index)] = _merge(merged[int(index)], entry, f"{path}[{index}].", unknown)
         return merged
     raise ValueError(f"Config key {path} must be a list of tables")
 
@@ -381,7 +390,8 @@ def dump_config(config: Config) -> str:
     return "\n".join(lines) + "\n"
 
 
-def load_config(path: Path | None) -> Config:
+def load_config(path: Path | None, warn: Callable[[str], None] | None = None) -> Config:
+    """``warn`` gets one message per unknown key; it defaults to printing on stderr."""
     config = Config()
     if path is None:
         return config
@@ -394,7 +404,16 @@ def load_config(path: Path | None) -> Config:
             f"{path} has {found}, so it uses a layout this eyeokuri can't read. "
             f"Start again from config.example.toml (version = {CONFIG_VERSION})."
         )
-    return _merge(config, data, "")
+    unknown: list[str] = []
+    config = _merge(config, data, "", unknown)
+    # A key from a newer or older version, or a typo, shouldn't stop the app.
+    for key in unknown:
+        message = f"{path}: ignoring unknown config key {key}"
+        if warn is None:
+            print(message, file=sys.stderr)
+        else:
+            warn(message)
+    return config
 
 
 def apply_overrides(config: Config, overrides: dict[str, Any]) -> Config:

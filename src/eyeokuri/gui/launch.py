@@ -36,8 +36,9 @@ def main(argv: list[str] | None = None) -> int:
     i18n.set_language(i18n.detect_language())
     root = tk.Tk()
     theme.apply(root)
+    warnings: list[str] = []
     try:
-        config = load_config(args.config) if args.config.exists() else Config()
+        config = load_config(args.config, warnings.append) if args.config.exists() else Config()
         check_config(config)
     except (ValueError, OSError) as e:
         root.withdraw()
@@ -45,7 +46,9 @@ def main(argv: list[str] | None = None) -> int:
         root.destroy()
         return 2
     i18n.set_language(i18n.resolve_language(config.app.language))
-    MainWindow(root, config, args.config)
+    window = MainWindow(root, config, args.config)
+    for message in warnings:
+        window.worker.log(message)
     root.mainloop()
     return 0
 
