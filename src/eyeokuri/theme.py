@@ -178,13 +178,16 @@ def apply(root: tk.Tk) -> None:
               indicatorbackground=[("disabled", PAPER), ("pressed", SAKURA_SOFT)])
     _check_indicator(root, style)
 
-    style.configure("TNotebook", background=PAPER, bordercolor=LINE, tabmargins=(8, 6, 8, 0))
+    # Like the Windows tab control: tabs sit flush against each other and the
+    # page, and the selected one is taller and joins the page below it.
+    style.configure("TNotebook", background=PAPER, bordercolor=LINE, tabmargins=(2, 4, 2, 0))
     style.configure("TNotebook.Tab", background=TAB, lightcolor=TAB, bordercolor=LINE,
-                    padding=(14, 5), foreground=INK_SOFT)
+                    padding=(12, 4), foreground=INK_SOFT)
     style.map("TNotebook.Tab",
               background=[("selected", PAPER), ("active", "#fff0f5")],
               lightcolor=[("selected", ACCENT), ("active", "#fff0f5")],
-              foreground=[("selected", INK)])
+              foreground=[("selected", INK)],
+              expand=[("selected", (2, 2, 2, 2))])
 
     style.configure("Treeview", background=SURFACE, fieldbackground=SURFACE, bordercolor=LINE)
     style.map("Treeview", background=[("selected", SAKURA_SOFT)], foreground=[("selected", INK)])
