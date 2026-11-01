@@ -34,7 +34,7 @@ You can package `eyeokuri` so it runs on a Windows PC without Python. You need P
 
 The build also writes `build\eyeokuri-windows.zip`, the same app without an installer. Without Inno Setup, the build skips the installer and still writes the zip. Both run the GUI (`eyeokuri-gui`) without a console window; the command-line `eyeokuri` is not included.
 
-The build downloads the face model and packs it into the app, so the other PC does not need to be online. The app folder also contains `LICENSE` and `THIRD_PARTY_NOTICES.md`, which carries the model's Apache 2.0 license. The About window opens both. Windows might show an "unknown publisher" warning because the executable is not signed.
+The build downloads the face model and packs it into the app, so the other PC does not need to be online. The app folder also contains `LICENSE` and `THIRD_PARTY_NOTICES.md`, which carries the model's Apache 2.0 license. The About window shows both. Windows might show an "unknown publisher" warning because the executable is not signed.
 
 The installed app keeps `config.toml` in `%APPDATA%\eyeokuri`, because its Start menu shortcut starts it there. Upgrading or uninstalling leaves the file alone.
 
@@ -77,7 +77,7 @@ src/eyeokuri/
     worker.py       runs the Engine on a background thread
     gesture_window.py  one gesture's window: plot, steps table, head limits
     output_window.py   key window: the key a gesture sends, and press or hold
-    about.py        About window: version, and buttons that open LICENSE and THIRD_PARTY_NOTICES.md
+    about.py        About window: version, and app icon, version, and buttons that show LICENSE and THIRD_PARTY_NOTICES.md in a viewer window
     config_window.py   config window: General and Advanced tabs
     live_edit.py    what the gesture, key and config windows share: edits apply live, OK saves, Cancel goes back
     wizard.py       gesture wizard for the gesture window's gesture

@@ -159,7 +159,7 @@ def view_size(camera: CameraConfig) -> tuple[int, int]:
 
 
 def find_notice_file(name: str, folders: list[Path]) -> Path | None:
-    """The first file called `name` in the folders, for the About window's license buttons."""
+    """The first file called `name` in the folders, for the About window's license viewer."""
     for folder in folders:
         candidate = folder / name
         if candidate.is_file():
