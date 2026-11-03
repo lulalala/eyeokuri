@@ -75,3 +75,27 @@ def test_keeps_retrying_while_device_is_missing():
 def test_reports_unopened_camera():
     camera, _, _ = make_camera([FakeCapture(opened=False)])
     assert not camera.opened
+
+
+def test_camera_missing_at_start_is_picked_up_when_plugged_in():
+    camera, opened, messages = make_camera([
+        FakeCapture(opened=False),
+        FakeCapture(opened=False),
+        FakeCapture(),
+    ])
+    assert camera.read(0.0) is None
+    assert camera.read(1.0) is None  # still unplugged
+    assert camera.read(2.0) is None  # this attempt gets a working capture
+    assert camera.read(2.1) == "frame"
+    assert len(opened) == 3
+    assert all(cap.released for cap in opened[:2])
+    assert messages[0] == "camera: reopening"  # not "frame grab failed": it never worked
+    assert messages[-1] == "camera: frames are back after 2.10s"
+
+
+def test_reopen_is_logged_once_in_a_while_not_every_attempt():
+    captures = [FakeCapture(opened=False) for _ in range(70)]
+    camera, _, messages = make_camera(captures)
+    for t in range(65):
+        camera.read(float(t))
+    assert messages.count("camera: reopening") == 3  # at 1 s, 31 s and 61 s

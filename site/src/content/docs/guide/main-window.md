@@ -92,4 +92,4 @@ While a gesture, key, config or wizard window is open, gestures are off and the 
 
 ## If the camera stops
 
-If the camera stops sending frames, for example when it disconnects for a moment, eyeokuri reopens it every second until frames come back. Gestures aren't detected during the gap.
+If the camera stops sending frames, for example when it disconnects for a moment, eyeokuri reopens it every second until frames come back. Gestures aren't detected during the gap. The same applies if you start eyeokuri before you plug the camera in: plug it in and eyeokuri picks it up within a few seconds, with no restart.

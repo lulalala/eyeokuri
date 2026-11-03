@@ -11,6 +11,8 @@ from eyeokuri.config import CameraConfig
 
 # While frames keep failing, reopen the camera this often.
 _RECONNECT_AFTER_S = 1.0
+# ...but say so only this often, so a camera that stays away doesn't flood the log.
+_LOG_REOPEN_EVERY_S = 30.0
 
 
 class ReconnectingCamera:
@@ -26,8 +28,11 @@ class ReconnectingCamera:
         self._reconnect_after_s = reconnect_after_s
         self._log = log
         self._cap = open_capture()
+        # A camera that is missing at startup is retried like one that dropped out.
+        self._missing_at_start = not self.opened
         self._failing_since: float | None = None
         self._last_attempt = 0.0
+        self._last_reopen_logged: float | None = None
 
     @property
     def opened(self) -> bool:
@@ -39,16 +44,20 @@ class ReconnectingCamera:
             if self._failing_since is not None:
                 self._say(f"camera: frames are back after {now - self._failing_since:.2f}s")
                 self._failing_since = None
+                self._missing_at_start = False
             return frame
         if self._failing_since is None:
             self._failing_since = now
             self._last_attempt = now
-            self._say("camera: frame grab failed (retrying)")
+            if not self._missing_at_start:
+                self._say("camera: frame grab failed (retrying)")
         elif now - self._last_attempt >= self._reconnect_after_s:
             # On Windows a device reset (MF_E_VIDEO_RECORDING_DEVICE_INVALIDATED)
             # kills the capture handle for good; only a fresh one recovers.
             self._last_attempt = now
-            self._say("camera: reopening")
+            if self._last_reopen_logged is None or now - self._last_reopen_logged >= _LOG_REOPEN_EVERY_S:
+                self._last_reopen_logged = now
+                self._say("camera: reopening")
             self._cap.release()
             self._cap = self._open_capture()
         return None
@@ -132,9 +141,9 @@ class CameraScanner:
 
 def open_camera(cam: CameraConfig, log: Callable[[str], None] | None = None) -> ReconnectingCamera:
     camera = ReconnectingCamera(lambda: _open_capture(cam), _RECONNECT_AFTER_S, log)
-    if not camera.opened:
-        raise SystemExit(
-            f"Could not open camera {cam.index}. Check that no other app is using it "
-            "and that this terminal has camera permission."
+    if not camera.opened and log:
+        log(
+            f"camera: could not open camera {cam.index}; waiting for it. Plug it in, check that "
+            "no other app is using it and that this terminal has camera permission"
         )
     return camera
