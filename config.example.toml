@@ -1,4 +1,4 @@
-# Copy to config.toml and pass with `eyeokuri --config config.toml`.
+# Copy to config.toml and pass with `eyeokuri-gui --config config.toml`.
 # Every key except version is optional; the values below are the defaults.
 version = 1
 
@@ -165,5 +165,4 @@ log_rejected = true
 # saves this whenever you pause or resume.
 paused = false
 # GUI language: "auto" follows the Windows display language; "en", "ja" or "zh-TW" picks one.
-# The command line is always English.
 language = "auto"

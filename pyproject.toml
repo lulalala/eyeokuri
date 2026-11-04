@@ -22,7 +22,6 @@ dependencies = [
 dev = ["pytest>=8"]
 
 [project.scripts]
-eyeokuri = "eyeokuri.app:main"
 eyeokuri-gui = "eyeokuri.gui:main"
 
 [tool.setuptools.dynamic]

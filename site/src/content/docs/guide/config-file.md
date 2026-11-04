@@ -5,7 +5,7 @@ sidebar:
 description: Write gestures as steps in config.toml, choose what they send, and combine them.
 ---
 
-The gesture window edits the same settings that `config.toml` holds. Edit the file directly when you want to copy a gesture, add many gestures or use [command-line options](https://github.com/lulalala/eyeokuri/blob/master/docs/command-line.md). The installed app keeps the file at `%APPDATA%\eyeokuri\config.toml`. [`config.example.toml`](https://github.com/lulalala/eyeokuri/blob/master/config.example.toml) lists every field.
+The gesture window edits the same settings that `config.toml` holds. Edit the file directly when you want to copy a gesture, add many gestures. The installed app keeps the file at `%APPDATA%\eyeokuri\config.toml`. [`config.example.toml`](https://github.com/lulalala/eyeokuri/blob/master/config.example.toml) lists every field.
 
 Config files must start with `version = 1`. A file without it uses an older layout, and eyeokuri refuses to load it. Start again from `config.example.toml`.
 

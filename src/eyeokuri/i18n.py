@@ -1,4 +1,4 @@
-"""GUI translations. The CLI never sets a language, so it stays English."""
+"""GUI translations."""
 
 from __future__ import annotations
 

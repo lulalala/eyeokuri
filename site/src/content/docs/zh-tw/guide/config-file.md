@@ -5,7 +5,7 @@ sidebar:
 description: 在 config.toml 把動作寫成步驟，選擇它送出什麼，並把動作組合起來。
 ---
 
-動作視窗編輯的，就是 `config.toml` 裡的同一組設定。如果你想複製動作、一次新增很多動作，或要搭配[命令列選項](https://github.com/lulalala/eyeokuri/blob/master/docs/command-line.md)，可以直接編輯這個檔案。安裝版會把檔案放在 `%APPDATA%\eyeokuri\config.toml`。[`config.example.toml`](https://github.com/lulalala/eyeokuri/blob/master/config.example.toml) 列出了每個欄位。
+動作視窗編輯的，就是 `config.toml` 裡的同一組設定。如果你想複製動作或一次新增很多動作時，可以直接編輯這個檔案。安裝版會把檔案放在 `%APPDATA%\eyeokuri\config.toml`。[`config.example.toml`](https://github.com/lulalala/eyeokuri/blob/master/config.example.toml) 列出了每個欄位。
 
 設定檔必須以 `version = 1` 開頭。沒有這一行的檔案使用舊的格式，eyeokuri 會拒絕載入。請從 `config.example.toml` 重新開始。
 

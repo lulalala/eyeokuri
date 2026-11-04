@@ -78,7 +78,7 @@ class Source(Protocol):
         Return Signals(t, face_present=False) when there is no face or no data."""
 
     def debug_view(self) -> np.ndarray | None:
-        """Optional BGR image for --preview, e.g. the camera frame with landmarks drawn.
+        """Optional BGR image for the camera view, e.g. the camera frame with landmarks drawn.
         Return None if the source has nothing to show."""
 
     def close(self) -> None: ...
@@ -143,7 +143,7 @@ fps = 30
 device = "auto"
 ```
 
-- The core merges `[source.<name>]` into the source's `Options` dataclass with the same rules as the rest of the config: unknown keys are rejected, and `--set source.opencv.camera=1` works.
+- The core merges `[source.<name>]` into the source's `Options` dataclass with the same rules as the rest of the config: and unknown keys are rejected.
 - Sections for sources that aren't selected are not validated, so one config file works on machines with different plugins installed.
 - `--source NAME` selects the source. `--camera N` stays as a shortcut for `source.<selected>.camera`.
 - `--help` lists the available sources: the built-in one and installed plugins.
@@ -177,7 +177,7 @@ Each step is one commit. Tests pass after every step.
 
 Each step also updates the docs it affects: README (config, flags, Layout), `config.example.toml`, and AGENTS.md (architecture, privacy, trigger checklist with `needs`).
 
-Each step changes behavior only where stated. Gestures must behave the same afterward, which needs a live check (`eyeokuri --preview`, paused with `p`) after step 1.
+Each step changes behavior only where stated. Gestures must behave the same afterward, which needs a live check (the GUI with the camera view open, paused) after step 1.
 
 ## Open questions
 

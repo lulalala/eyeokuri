@@ -1,3 +1,5 @@
+import subprocess
+import sys
 from dataclasses import replace
 
 import pytest
@@ -417,3 +419,17 @@ def test_ends_of_press_gestures_are_ignored():
     run(engine, len(samples))
     assert output.sent == ["enter"]
     assert not any("ended" in m for m in messages)
+
+
+def test_engine_imports_no_front_end_or_platform_modules():
+    # A fresh interpreter, so modules other tests imported don't count.
+    code = (
+        "import sys, eyeokuri.engine; "
+        "banned = {'tkinter', 'pynput', 'winsound'}; "
+        "prefixes = ('eyeokuri.gui', 'eyeokuri.foreground', 'eyeokuri.programs'); "
+        "bad = [m for m in sys.modules if m.split('.')[0] in banned or m.startswith(prefixes)]; "
+        "print(sorted(bad)); "
+        "raise SystemExit(1 if bad else 0)"
+    )
+    result = subprocess.run([sys.executable, "-I", "-c", code], capture_output=True, text=True)
+    assert result.returncode == 0, result.stdout + result.stderr

@@ -5,7 +5,7 @@ sidebar:
 description: config.toml でジェスチャーをステップとして書き、送る内容を選び、ジェスチャーを組み合わせます。
 ---
 
-ジェスチャーのウィンドウは、`config.toml` に書かれているものと同じ設定を編集します。ジェスチャーをコピーしたい場合、たくさんのジェスチャーを追加したい場合、[コマンドラインのオプション](https://github.com/lulalala/eyeokuri/blob/master/docs/command-line.md)を使う場合は、ファイルを直接編集してください。インストールしたアプリは、このファイルを `%APPDATA%\eyeokuri\config.toml` に保存します。すべての項目は [`config.example.toml`](https://github.com/lulalala/eyeokuri/blob/master/config.example.toml) に載っています。
+ジェスチャーのウィンドウは、`config.toml` に書かれているものと同じ設定を編集します。ジェスチャーをコピーしたい場合、たくさんのジェスチャーを追加したい場合は、ファイルを直接編集してください。インストールしたアプリは、このファイルを `%APPDATA%\eyeokuri\config.toml` に保存します。すべての項目は [`config.example.toml`](https://github.com/lulalala/eyeokuri/blob/master/config.example.toml) に載っています。
 
 設定ファイルは `version = 1` で始まる必要があります。この行がないファイルは古い形式で、アイ送りは読み込みを拒否します。`config.example.toml` からやり直してください。
 

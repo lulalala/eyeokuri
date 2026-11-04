@@ -34,7 +34,6 @@ The face landmark model (~4 MB) is downloaded on first run. That download is the
 - [Get started](https://lulalala.github.io/eyeokuri/guide/getting-started/): first run, default gestures and the blink timing.
 - [Use the main window](https://lulalala.github.io/eyeokuri/guide/main-window/), [edit a gesture](https://lulalala.github.io/eyeokuri/guide/edit-a-gesture/), [set up a gesture with the wizard](https://lulalala.github.io/eyeokuri/guide/gesture-wizard/) and [change camera and feedback settings](https://lulalala.github.io/eyeokuri/guide/config-window/).
 - [Edit gestures in the config file](https://lulalala.github.io/eyeokuri/guide/config-file/) and [`config.example.toml`](config.example.toml), which lists every field.
-- [Command line](docs/command-line.md): run without a window, `--set`, the preview window and logging.
 - [Development](docs/development.md): set up, test and build; [research notes](docs/research.md).
 
 ## License

@@ -48,7 +48,7 @@ Setup matters more than the camera:
 - Glare on glasses can hide the eyelids. Tilt the camera or lamp a little.
 - Turn off driver "low-light compensation" or auto-exposure modes that lower fps.
 
-To check a camera, run `eyeokuri --preview` and press `p` to pause, so gestures print instead of sending keys. The preview shows live fps. It should stay near 30. Blink normally for a minute: if ordinary blinks are logged as "too short", or fps drops below about 20, improve the lighting or try another camera. Select a non-default camera with `--set camera.index=1`.
+To check a camera, run `eyeokuri-gui`, open **View > Camera view…** and pause with the **All gestures** checkbox, so gestures print instead of sending keys. The status bar shows live fps. It should stay near 30. Blink normally for a minute: if ordinary blinks are logged as "too short", or fps drops below about 20, improve the lighting or try another camera. Pick another camera in the config window.
 
 ## Software building blocks
 

@@ -1,12 +1,21 @@
+from pathlib import Path
+
 import pytest
 
-from eyeokuri.app import build_config, parse_args
-from eyeokuri.config import GUARD_SIGNALS, SIGNALS, Config, StepConfig, apply_overrides, dump_config, load_config
+from eyeokuri.config import (
+    GUARD_SIGNALS, SIGNALS, Config, StepConfig, apply_overrides, dump_config, load_config, parse_override,
+)
+from eyeokuri.engine import check_config
 from eyeokuri.sources import EYE_OPENNESS, HEAD_POSE
 
 
-def config_from(*argv):
-    return build_config(parse_args(list(argv)))
+def config_from(*overrides, path=None):
+    """The defaults or a config file, then SECTION.KEY=VALUE overrides, checked the way the GUI checks them."""
+    config = load_config(path)
+    for item in overrides:
+        config = apply_overrides(config, parse_override(item))
+    check_config(config)
+    return config
 
 
 def test_defaults():
@@ -25,24 +34,12 @@ def test_defaults():
     assert config.feedback.log_rejected
 
 
-def test_shortcut_flags():
+def test_override_parses_values_and_bare_strings():
     config = config_from(
-        "--min-duration", "0.6", "--blink-key", "space",
-        "--no-sound", "--no-head-shake", "--camera", "1",
-    )
-    assert config.gestures["blink"].steps[1].after_min_s == 0.6
-    assert config.gestures["blink"].output == "space"
-    assert not config.feedback.sound
-    assert not config.gestures["head_shake"].enabled
-    assert config.camera.index == 1
-
-
-def test_set_parses_values_and_bare_strings():
-    config = config_from(
-        "--set", "eyes.open_ratio=0.8",
-        "--set", "eyes.require_both_eyes=false",
-        "--set", "gestures.blink.output=space",
-        "--set", "gestures.blink.cooldown_s=2",
+        "eyes.open_ratio=0.8",
+        "eyes.require_both_eyes=false",
+        "gestures.blink.output=space",
+        "gestures.blink.cooldown_s=2",
     )
     assert config.eyes.open_ratio == 0.8
     assert config.eyes.require_both_eyes is False
@@ -50,22 +47,22 @@ def test_set_parses_values_and_bare_strings():
     assert config.gestures["blink"].cooldown_s == 2.0
 
 
-def test_set_changes_one_step_by_index():
-    config = config_from("--set", "gestures.nod_down.steps.0.above_deg=15")
+def test_override_changes_one_step_by_index():
+    config = config_from("gestures.nod_down.steps.0.above_deg=15")
     steps = config.gestures["nod_down"].steps
     assert steps[0].above_deg == 15.0
     assert steps[1] == Config().gestures["nod_down"].steps[1]
 
 
-def test_set_adds_a_new_gesture():
+def test_override_adds_a_new_gesture():
     config = config_from(
-        "--set", 'gestures.look.steps=[{signal = "yaw", above_deg = 20, hold_s = 1}]',
-        "--set", "gestures.look.output=space",
+        'gestures.look.steps=[{signal = "yaw", above_deg = 20, hold_s = 1}]',
+        "gestures.look.output=space",
     )
     assert config.gestures["look"].steps == [StepConfig(signal="yaw", above_deg=20.0, hold_s=1.0)]
 
 
-def test_set_wins_over_shortcut_and_file(tmp_path):
+def test_override_wins_over_file(tmp_path):
     path = tmp_path / "c.toml"
     path.write_text(
         "version = 1\n[gestures.blink]\nsteps = [\n"
@@ -73,7 +70,7 @@ def test_set_wins_over_shortcut_and_file(tmp_path):
         '  { signal = "eyes", above_ratio = 0.8, after_min_s = 0.5, after_max_s = 3.0 },\n'
         "]\n"
     )
-    config = config_from("-c", str(path), "--min-duration", "0.6", "--set", "gestures.blink.steps.1.after_min_s=0.7")
+    config = config_from("gestures.blink.steps.1.after_min_s=0.7", path=path)
     blink = config.gestures["blink"]
     assert blink.steps[1].after_min_s == 0.7
     assert blink.steps[1].after_max_s == 3.0
@@ -86,11 +83,11 @@ def test_file_without_version_is_rejected(tmp_path):
     path = tmp_path / "c.toml"
     path.write_text("[blink]\nmin_duration_s = 0.5\n")
     with pytest.raises(ValueError, match="config.example.toml"):
-        config_from("-c", str(path))
+        config_from(path=path)
 
 
 def test_example_config_matches_defaults():
-    config = config_from("-c", "config.example.toml")
+    config = config_from(path=Path("config.example.toml"))
     assert config == Config()
 
 
@@ -99,65 +96,55 @@ def test_example_config_matches_defaults():
     "gestures.blink.steps.5.hold_s=1", "gestures.blink.steps.0.nope=1", "gestures.blink.steps=1",
     "gestures.blink.steps.0.above_ratio=abc",
 ])
-def test_bad_set_is_rejected(bad):
+def test_bad_override_is_rejected(bad):
     with pytest.raises(ValueError):
-        config_from("--set", bad)
+        config_from(bad)
 
 
 def test_invalid_keystroke_output_is_rejected():
     with pytest.raises(ValueError, match="gestures.blink.output"):
-        config_from("--set", "gestures.blink.output=notakey")
+        config_from("gestures.blink.output=notakey")
 
 
 def test_key_combination_output_is_accepted():
-    config = config_from("--set", "gestures.blink.output=shift+s", "--set", "gestures.nod_up.output=page_down")
+    config = config_from("gestures.blink.output=shift+s", "gestures.nod_up.output=page_down")
     assert config.gestures["blink"].output == "shift+s"
     assert config.gestures["nod_up"].output == "page_down"
 
 
-def test_blink_key_flag_accepts_any_key():
-    assert config_from("--blink-key", "F5").gestures["blink"].output == "f5"
-
-
-def test_blink_key_flag_rejects_unknown_key(capsys):
-    with pytest.raises(SystemExit):
-        config_from("--blink-key", "ctrl+zz")
-    assert "unknown key 'zz'" in capsys.readouterr().err
-
-
 def test_app_output_is_accepted():
-    config = config_from("--set", "gestures.blink.output=app_pause_toggle")
+    config = config_from("gestures.blink.output=app_pause_toggle")
     assert config.gestures["blink"].output == "app_pause_toggle"
 
 
 @pytest.mark.parametrize("old", ["app:toggle_pause", "left_click", "right_click", "wheel_down"])
 def test_old_output_name_is_rejected_with_the_new_names(old):
     with pytest.raises(ValueError, match="gestures.blink.output") as e:
-        config_from("--set", f"gestures.blink.output={old}")
+        config_from(f"gestures.blink.output={old}")
     assert "mouse_left_click" in str(e.value)
     assert "app_pause_toggle" in str(e.value)
 
 
 def test_invalid_gesture_is_rejected_before_the_camera_opens():
     with pytest.raises(ValueError, match="unknown gesture"):
-        config_from("--set", 'gestures.blink.steps=[{gesture = "wink"}]')
+        config_from('gestures.blink.steps=[{gesture = "wink"}]')
 
 
 def test_inverted_eye_ratios_are_rejected():
     with pytest.raises(ValueError, match="eyes.close_ratio"):
-        config_from("--set", "eyes.close_ratio=0.9")
+        config_from("eyes.close_ratio=0.9")
 
 
 def test_eye_warmup_longer_than_the_window_is_rejected():
     with pytest.raises(ValueError, match="eyes.warmup_s"):
-        config_from("--set", "eyes.warmup_s=12")
+        config_from("eyes.warmup_s=12")
     with pytest.raises(ValueError, match="eyes.warmup_s"):
-        config_from("--set", "eyes.baseline_window_s=1.5")
+        config_from("eyes.baseline_window_s=1.5")
 
 
 def test_head_window_must_be_above_zero():
     with pytest.raises(ValueError, match="head.baseline_window_s"):
-        config_from("--set", "head.baseline_window_s=0")
+        config_from("head.baseline_window_s=0")
 
 
 def test_dump_of_defaults_is_only_the_version():
@@ -166,11 +153,11 @@ def test_dump_of_defaults_is_only_the_version():
 
 def test_dump_reads_back_as_the_same_config(tmp_path):
     config = config_from(
-        "--camera", "1", "--min-duration", "0.4",
-        "--set", "gestures.head_shake.enabled=false",
-        "--set", 'gestures.look.steps=[{signal = "yaw", above_deg = 20, hold_s = 1}]',
-        "--set", "gestures.look.output=space",
-        "--set", 'gestures."two words".steps=[{gesture = "blink"}]',
+        "camera.index=1", "gestures.blink.steps.1.after_min_s=0.4",
+        "gestures.head_shake.enabled=false",
+        'gestures.look.steps=[{signal = "yaw", above_deg = 20, hold_s = 1}]',
+        "gestures.look.output=space",
+        'gestures."two words".steps=[{gesture = "blink"}]',
     )
     path = tmp_path / "saved.toml"
     path.write_text(dump_config(config))
@@ -178,8 +165,8 @@ def test_dump_reads_back_as_the_same_config(tmp_path):
 
 
 def test_output_mode_can_be_set_and_survives_a_dump(tmp_path):
-    config = config_from("--set", "gestures.blink.output=ctrl", "--set", "gestures.blink.output_mode=while",
-                         "--set", "gestures.tilt_right.enabled=false")
+    config = config_from("gestures.blink.output=ctrl", "gestures.blink.output_mode=while",
+                         "gestures.tilt_right.enabled=false")
     assert config.gestures["blink"].output_mode == "while"
     path = tmp_path / "saved.toml"
     path.write_text(dump_config(config))
@@ -188,16 +175,16 @@ def test_output_mode_can_be_set_and_survives_a_dump(tmp_path):
 
 def test_output_mode_is_checked_before_the_camera_opens():
     with pytest.raises(ValueError, match="gestures.blink.output_mode while needs a key"):
-        config_from("--set", "gestures.blink.output=mouse_wheel_down", "--set", "gestures.blink.output_mode=while")
+        config_from("gestures.blink.output=mouse_wheel_down", "gestures.blink.output_mode=while")
 
 
 def test_dump_writes_only_what_changed_in_a_built_in_gesture():
-    text = dump_config(config_from("--set", "gestures.blink.output=space"))
+    text = dump_config(config_from("gestures.blink.output=space"))
     assert text == 'version = 1\n\n[gestures.blink]\noutput = "space"\n'
 
 
-def test_guards_can_be_changed_with_set_and_survive_a_dump(tmp_path):
-    config = config_from("--set", "gestures.blink.guards.0.below_deg=30")
+def test_guards_can_be_changed_by_override_and_survive_a_dump(tmp_path):
+    config = config_from("gestures.blink.guards.0.below_deg=30")
     assert config.gestures["blink"].guards[0].below_deg == 30.0
     path = tmp_path / "saved.toml"
     path.write_text(dump_config(config))
@@ -206,9 +193,9 @@ def test_guards_can_be_changed_with_set_and_survive_a_dump(tmp_path):
 
 def test_tiny_camera_size_is_rejected():
     with pytest.raises(ValueError, match="camera.width"):
-        build_config(parse_args(["--set", "camera.width=1"]))
+        config_from("camera.width=1")
     with pytest.raises(ValueError, match="camera.height"):
-        build_config(parse_args(["--set", "camera.height=1"]))
+        config_from("camera.height=1")
 
 
 def test_step_unit_and_bounds_follow_the_signal():
@@ -235,8 +222,8 @@ def test_signal_values_show_ratios_to_hundredths_and_angles_in_whole_degrees():
     assert SIGNALS["yaw"].round(12.6) == 13.0
 
 
-def test_paused_survives_a_dump_and_works_with_set(tmp_path):
-    config = config_from("--set", "app.paused=true")
+def test_paused_survives_a_dump_and_can_be_overridden(tmp_path):
+    config = config_from("app.paused=true")
     assert config.app.paused
     text = dump_config(config)
     assert text == "version = 1\n\n[app]\npaused = true\n"
@@ -245,15 +232,15 @@ def test_paused_survives_a_dump_and_works_with_set(tmp_path):
     assert load_config(path) == config
 
 
-def test_language_can_be_set_through_set():
-    assert config_from("--set", "app.language=en").app.language == "en"
-    assert config_from("--set", "app.language=ja").app.language == "ja"
-    assert config_from("--set", "app.language=zh-TW").app.language == "zh-TW"
+def test_language_can_be_overridden():
+    assert config_from("app.language=en").app.language == "en"
+    assert config_from("app.language=ja").app.language == "ja"
+    assert config_from("app.language=zh-TW").app.language == "zh-TW"
 
 
 def test_unknown_language_is_rejected():
     with pytest.raises(ValueError, match="app.language must be one of auto, en, ja, zh-TW"):
-        config_from("--set", "app.language=fr")
+        config_from("app.language=fr")
 
 
 def test_unknown_keys_in_a_config_file_are_ignored_with_a_warning(tmp_path, capsys):
@@ -269,7 +256,7 @@ def test_unknown_keys_in_a_config_file_are_ignored_with_a_warning(tmp_path, caps
     assert "old_top" in err and "eyes.retired" in err and "gestures.blink.steps[0].nope" in err
 
 
-def test_unknown_key_from_set_is_still_rejected():
+def test_unknown_key_from_an_override_is_still_rejected():
     with pytest.raises(ValueError, match="Unknown config key: eyes.retired"):
         apply_overrides(Config(), {"eyes": {"retired": 1}})
 

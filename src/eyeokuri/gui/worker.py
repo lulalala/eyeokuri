@@ -89,7 +89,6 @@ class Worker:
                 img = preview.render(
                     engine.source.debug_view(), obs, engine.config.eyes, engine.statuses(),
                     engine.paused, engine.fps, obs.timestamp - engine.last_fire_at < preview.FLASH_S,
-                    hints=False,
                 )
                 if img.shape[1] > VIEW_MAX_WIDTH:
                     scale = VIEW_MAX_WIDTH / img.shape[1]

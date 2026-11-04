@@ -57,8 +57,8 @@ class Frame:
 
 
 class Engine:
-    """Owns the source, trackers, gestures and outputs. The command line loop
-    and the GUI both drive it by calling step() once per frame.
+    """Owns the source, trackers, gestures and outputs. The GUI drives it
+    by calling step() once per frame.
 
     set_config(), toggle_pause() and set_suspended() may be called from
     another thread: they take effect at the start of the next step(). Settings

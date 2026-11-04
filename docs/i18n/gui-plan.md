@@ -32,7 +32,7 @@ Translate:
 
 Keep in English. The user decided this; don't translate these without asking:
 
-- Trigger reasons and every log line, including the GUI's own `worker.log()` lines. They are shared with the CLI and `--log`, and tests match their text. The gesture window and wizard show a trigger reason after a translated label (`✕ Doesn't fire: <reason>`); that mix is expected.
+- Trigger reasons and every log line, including the GUI's own `worker.log()` lines. Tests match their text. The gesture window and wizard show a trigger reason after a translated label (`✕ Doesn't fire: <reason>`); that mix is expected.
 - `ValueError` messages from `config.py`, `triggers.py` and `keys.py`, which the config and gesture windows show as errors.
 - Identifiers: names of gestures you add, config keys on the Advanced tab (`baseline_window_s`), key names (`Enter`, `ctrl+s`) and units (`s`, `°`). Built-in gestures and signals are the exception: `labels.py` shows a translated label followed by the ID (`まばたき（blink）`), so you can still find the ID in the log and config file. Show a gesture or signal ID with `show_gesture()` or `show_signal()`, and a combobox of IDs with `id_box()` in `gui/tkutil.py`.
 - `config.example.toml` and the comments written by `dump_config()`.
@@ -61,9 +61,8 @@ Add `src/eyeokuri/i18n.py`. It has no Tk imports, because `tuning.py` uses it to
   - `_STYLES` holds a `_Style`: the gap between sentences, the full stop, an aside after a word and the colon after a label. The default is `_Style(" ", ".", " ({})", ": ")`; Chinese and Japanese use `_Style("", "。", "（{}）", "：")`.
   - `LANGUAGE_NAMES` holds the language's name in itself for the Language dropdown (`日本語`). It is never translated.
 - Detect the language from the Windows UI language. Call `ctypes.windll.kernel32.GetUserDefaultUILanguage()` lazily inside a function, and map the LANGID with `locale.windows_locale` (`0x0404` → `zh_TW`). Fall back to English on other platforms or unknown languages. Match the region: `zh_CN` gets English until there's a `zh-CN` catalog.
-- The CLI never calls `set_language()`, so it stays English.
 
-The user chose to add a config key that overrides detection (done): `app.language = "auto"` (`"auto"`, `"en"` or a catalog code). It needs the usual steps: the default in `AppConfig`, the same value in `config.example.toml`, validation in the constructor with a `ValueError` listing allowed values, and a check that `--set app.language=en` works. Adding the key doesn't change what old files mean, so don't bump `CONFIG_VERSION`.
+The user chose to add a config key that overrides detection (done): `app.language = "auto"` (`"auto"`, `"en"` or a catalog code). It needs the usual steps: the default in `AppConfig`, the same value in `config.example.toml`, validation in the constructor with a `ValueError` listing allowed values, and a test that `apply_overrides` accepts it. Adding the key doesn't change what old files mean, so don't bump `CONFIG_VERSION`.
 
 Add `tests/test_i18n.py`:
 

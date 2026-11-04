@@ -6,8 +6,6 @@ __pycache__/
 /dist/
 /config.toml
 /configs/
-# Eye-value logs from --log
-*.csv
 /site/dist/
 /site/node_modules/
 /site/.astro/

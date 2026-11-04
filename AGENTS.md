@@ -4,7 +4,7 @@
 
 ## Hard rules
 
-- **Privacy.** Camera frames stay in memory and are never written to disk or sent anywhere. `--log` writes numbers only. Don't add features that save frames, upload data or make network calls; the one exception is the existing one-time face model download. This is the project's main promise to users.
+- **Privacy.** Camera frames stay in memory and are never written to disk or sent anywhere. Don't add features that save frames, upload data or make network calls; the one exception is the existing one-time face model download. This is the project's main promise to users.
 - Don't use the `mediapipe` package (it includes telemetry); the face model runs through OpenCV DNN.
 - No new runtime dependencies, and no linter, formatter or type checker, unless the user asks.
 - Only commit or push when the user asks. Don't build on or merge the `gui-wip` branch (an abandoned PySide6 GUI).
@@ -20,9 +20,9 @@
 3. Triggers are pure state machines: `Observation` in, `TriggerEvent | None` out. No camera, OS or wall-clock access; use `obs.timestamp` only, so they stay testable.
 4. A trigger that loses the face (`not obs.face_present` or a `None` head value) must `reset()` and cancel any half-done gesture.
 5. Head signs: **positive pitch = head tilted down**, **positive yaw = your left**, **positive roll = tilted toward your left shoulder**. Easy to get backwards; `signal_value` in `triggers.py` is the reference.
-6. Config precedence: defaults < `--config` file < shortcut flags < `--set SECTION.KEY=VALUE`. `--set` reaches one step by index (`gestures.blink.steps.1.after_min_s=0.4`).
+6. Config precedence: defaults < `--config` file (`eyeokuri-gui -c`). `parse_override`/`apply_overrides` reach one step by index (`gestures.blink.steps.1.after_min_s=0.4`), as in tests.
 7. Config files must have `version = 1` (`CONFIG_VERSION`); others are rejected, not migrated. Bump it when a change would make old files mean something else.
-8. New pipeline behavior goes in `Engine`, not in `app.py` or `gui/`, because both front ends drive the same engine.
+8. **The pipeline is front-end- and platform-independent.** All pipeline behavior (source, eyes, head, triggers, outputs, pause, held outputs) lives in `Engine` and the modules it uses, never in `gui/`. A front end only calls `Engine` and shows what it returns. A macOS version is planned and must reuse `Engine` unchanged, so nothing the engine imports may need Tk or Windows at import time: `Win32Output`, `winsound` and similar load lazily inside the class or function that needs them. `test_engine_imports_no_front_end_or_platform_modules` enforces this; if it fails, move the code, don't loosen the test.
 
 ## GUI rules
 
@@ -67,7 +67,7 @@ Follow the [developer documentation writing standard](https://github.com/NateBJo
 - Address the reader as `you`; active voice, present tense, imperative for instructions. No `please`.
 - `must` = requirement, `can` = available action, `might` = uncertain, `should` = clear recommendation only.
 - Sentence-case headings. Task sections start with a verb ("Install the package"); concept sections are noun phrases.
-- The README is a short front page; usage lives in the site guide, `docs/command-line.md` and `config.example.toml`. Don't copy guide text into the README. Docs for users give concrete numbers ("turn past ~15° to one side") and flag examples in step with the code.
+- The README is a short front page; usage lives in the site guide and `config.example.toml`. Don't copy guide text into the README. Docs for users give concrete numbers ("turn past ~15° to one side") and flag examples in step with the code.
 
 ## Git
 
@@ -78,7 +78,7 @@ Follow the [developer documentation writing standard](https://github.com/NateBJo
 ## Definition of done
 
 1. `.venv\Scripts\python -m pytest -q` passes, and new behavior has tests.
-2. `.venv\Scripts\eyeokuri --help` and `.venv\Scripts\eyeokuri-gui --help` run without error.
-3. Every new or changed config key has the same value in code defaults and `config.example.toml`, and works through `--set`.
+2. `.venv\Scripts\eyeokuri-gui --help` runs without error.
+3. Every new or changed config key has the same value in code defaults and `config.example.toml`, and a test overrides it through `apply_overrides`.
 4. The site guide pages, the README (if it is affected) and the Layout section of `docs/development.md` match the change.
-5. The final message is 2–4 lines on what changed and what the user notices, then a list of what you could not test: real-camera behavior, real key output, and how GUI changes look. Never say a gesture "works" from unit tests; say it is unit-tested and needs a live check (`eyeokuri --preview` paused with `p`, then `eyeokuri` in a game).
+5. The final message is 2–4 lines on what changed and what the user notices, then a list of what you could not test: real-camera behavior, real key output, and how GUI changes look. Never say a gesture "works" from unit tests; say it is unit-tested and needs a live check (`eyeokuri-gui` with View > Camera view… open and the **All gestures** checkbox cleared to pause, then unpaused in a game).

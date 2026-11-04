@@ -240,7 +240,7 @@ class AppConfig:
     # saves this whenever you pause or resume, so it starts the way you left it.
     paused: bool = False
     # GUI language: "auto" follows the Windows display language; "en" or a
-    # translation's code (ja, zh-TW) picks one. The command line is always English.
+    # translation's code (ja, zh-TW) picks one.
     language: str = "auto"
 
     def __post_init__(self) -> None:
@@ -312,7 +312,7 @@ def _merge_list(
     current: list[Any], value: Any, item: Any, path: str, unknown: list[str] | None = None
 ) -> list[Any]:
     """A list of tables replaces the list. A table keyed by index changes items
-    in place, which is what ``--set gestures.blink.steps.1.after_min_s=0.4`` gives."""
+    in place, which is what ``gestures.blink.steps.1.after_min_s=0.4`` gives."""
     if isinstance(value, list):
         merged = []
         for i, entry in enumerate(value):

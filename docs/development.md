@@ -32,7 +32,7 @@ You can package `eyeokuri` so it runs on a Windows PC without Python. You need P
 1. Double-click `build-windows.bat`. The first build takes a few minutes because it sets up `build\venv`.
 2. Run `build\eyeokuri-setup.exe` on the other PC. It installs for the current user without asking for administrator rights, and adds eyeokuri to the Start menu.
 
-The build also writes `build\eyeokuri-windows.zip`, the same app without an installer. Without Inno Setup, the build skips the installer and still writes the zip. Both run the GUI (`eyeokuri-gui`) without a console window; the command-line `eyeokuri` is not included.
+The build also writes `build\eyeokuri-windows.zip`, the same app without an installer. Without Inno Setup, the build skips the installer and still writes the zip. Both run the GUI (`eyeokuri-gui`) without a console window.
 
 The build downloads the face model and packs it into the app, so the other PC does not need to be online. The app folder also contains `LICENSE` and `THIRD_PARTY_NOTICES.md`, which carries the model's Apache 2.0 license. The About window shows both. Windows might show an "unknown publisher" warning because the executable is not signed.
 
@@ -62,15 +62,14 @@ src/eyeokuri/
   eyes.py         Signals -> Observation (open/closed vs. your open-eye level, and wink: one eye vs. the other)
   head.py         Signals -> head yaw/pitch/roll relative to your usual pose
   triggers.py     Observation -> step boxes entered -> gestures -> TriggerEvent
-  i18n.py         GUI translations: _(), N_(), language detection (no Tk; the command line stays English)
+  i18n.py         GUI translations: _(), N_(), language detection (no Tk)
   labels.py       what the GUI shows for a built-in gesture or signal ID: a translated label, plus the ID
   locales/        one catalog per GUI language ({"English text": "translated text"}), e.g. ja.py, zh_tw.py
   keys.py         key names and combinations ("ctrl+s"): parsing and press order
   outputs.py      TriggerEvent -> key/mouse input
-  engine.py       runs the pipeline one frame at a time (used by both front ends)
+  engine.py       runs the pipeline one frame at a time (used by the GUI)
   programs.py     per-program configs: gesture overrides over the base config, and which program is in front (GUI only)
   foreground.py   the foreground window's executable name and title (Windows)
-  app.py          command line: main loop and flags
   gui/            window (Tkinter); eyeokuri-gui runs gui:main
     launch.py       parses the flags and starts the main window
     main_window.py  the gesture list (Base config and program tabs) with on/off and pause toggles, the log, and the menu bar
@@ -168,7 +167,7 @@ The docs are set up for English, Japanese (`ja`) and Traditional Chinese for Tai
 
 ## Translate the GUI
 
-The GUI follows the Windows display language (`app.language = "auto"`) and has Japanese (`ja`) and Traditional Chinese (`zh-TW`) catalogs. Log lines, `ValueError` messages and the command line stay English. The rules for writing translatable strings are in `docs/i18n/gui-plan.md`.
+The GUI follows the Windows display language (`app.language = "auto"`) and has Japanese (`ja`) and Traditional Chinese (`zh-TW`) catalogs. Log lines and `ValueError` messages stay English. The rules for writing translatable strings are in `docs/i18n/gui-plan.md`.
 
 - To add a string, wrap it with `_("...")` (or `N_("...")` in a module-level constant, and `_(value)` where it shows), then add the entry to every catalog in `eyeokuri/locales/`. `tests/test_i18n.py` fails when a catalog has a missing or stale entry.
 - To add a language, copy `locales/ja.py`, add it to `CATALOGS` in `i18n.py`, add the Windows locale names to `_LOCALE_LANGUAGES` (and its punctuation to `_STYLES` if it isn't the English kind), and add `docs/i18n/glossary.<language>.tsv`. Ask a native speaker to review the catalog before release.

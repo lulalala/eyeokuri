@@ -1,5 +1,5 @@
 """What the GUI shows for a gesture, signal or output mode ID. The ID stays the name
-everywhere else: config files, --set, logs and trigger reasons."""
+everywhere else: config files, logs and trigger reasons."""
 
 from __future__ import annotations
 

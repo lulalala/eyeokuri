@@ -1,4 +1,4 @@
-"""Optional debug window: the source's view with eye and trigger state drawn on top."""
+"""The camera view with eye and trigger state drawn on top."""
 
 from __future__ import annotations
 
@@ -8,7 +8,6 @@ import numpy as np
 from eyeokuri.config import EyeConfig
 from eyeokuri.eyes import Observation
 
-WINDOW = "eyeokuri preview"
 # How long the border stays lit after a gesture fires.
 FLASH_S = 0.3
 # Canvas for sources without an image, so the status overlay still shows.
@@ -52,20 +51,6 @@ def _openness_bar(img: np.ndarray, obs: Observation, cfg: EyeConfig) -> None:
         cv2.line(img, (x(v), y0 - 4), (x(v), y1 + 4), color, 2)
 
 
-def show(
-    view: np.ndarray | None,
-    obs: Observation,
-    eye_cfg: EyeConfig,
-    trigger_status: list[str],
-    paused: bool,
-    fps: float,
-    flash: bool,
-) -> int:
-    """Draw and display one frame; returns the pressed key code (or -1)."""
-    cv2.imshow(WINDOW, render(view, obs, eye_cfg, trigger_status, paused, fps, flash))
-    return cv2.waitKey(1) & 0xFF
-
-
 def render(
     view: np.ndarray | None,
     obs: Observation,
@@ -74,7 +59,6 @@ def render(
     paused: bool,
     fps: float,
     flash: bool,
-    hints: bool = True,
 ) -> np.ndarray:
     """The mirrored view with the state overlay, as a BGR image."""
     if view is None:
@@ -97,11 +81,6 @@ def render(
     for line in trigger_status:
         y += 22
         _text(img, line, y)
-    if hints:
-        _text(img, "p: pause   q/Esc: quit", img.shape[0] - 40, _GRAY)
     _openness_bar(img, obs, eye_cfg)
     return img
 
-
-def close() -> None:
-    cv2.destroyAllWindows()
