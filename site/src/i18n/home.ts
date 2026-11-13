@@ -71,25 +71,25 @@ export const home: Record<string, HomeText> = {
     },
     benefits: {
       kicker: "gesture → key",
-      title: "Your face is the controller",
+      title: "Your hands are free now",
       text: "eyeokuri watches your webcam and presses keys for you.",
       items: [
         {
-          title: "Rest your hands",
-          text: "Blink to read on. No Enter key, no mouse clicks, no sore hands after a long route. Shake your head when you need a break.",
+          title: "Hands free of fatigue",
+          text: "Ease RSI strain. Your hands can hold popcorn instead.",
         },
         {
           title: "Tuned to you",
-          text: "A wizard learns how you blink. Want more? Build your own gestures, like a nod or a long blink, and give each one a key.",
+          text: "A wizard learns how you blink. Want more? Build your own gestures.",
         },
         {
           title: "Private by design",
-          text: "Camera frames stay in memory on your PC. eyeokuri never saves or uploads one, and the code is open, so you can check.",
+          text: "Camera frames are never saved or uploaded.",
         },
       ],
     },
     start: {
-      title: "Your hands are free now",
+      title: "Install and set up",
       steps: [
         { title: "Download", text: "Free for Windows, about 70 MB. Any webcam works, even an Android phone as a webcam." },
         {
@@ -147,25 +147,25 @@ export const home: Record<string, HomeText> = {
     },
     benefits: {
       kicker: "動作 → 按鍵",
-      title: "你的臉就是控制器",
-      text: "eyeokuri 透過視訊鏡頭看著你，替你按下按鍵。你會得到這些好處。",
+      title: "實現雙手自由",
+      text: "eyeokuri 透過視訊鏡頭看著你，替你按下按鍵。",
       items: [
         {
-          title: "讓雙手休息",
-          text: "眨眼就繼續讀，不用按 Enter、不用點滑鼠，讀完一整條路線手也不痠。想休息就搖搖頭。",
+          title: "雙手不再疲勞",
+          text: "減輕滑鼠手的負擔，雙手可以拿來捧爆米花。",
         },
         {
           title: "為你量身調整",
-          text: "內建精靈會學習你的眨眼方式。還不夠？自訂動作吧，像是點頭或長眨眼，每個動作都能指定一個按鍵。",
+          text: "內建精靈會學習你的眨眼方式。還不夠？自訂你的專屬動作。",
         },
         {
           title: "隱私優先",
-          text: "鏡頭畫面只留在你電腦的記憶體裡，eyeokuri 一格都不會儲存或上傳。程式碼公開，歡迎自己檢查。",
+          text: "鏡頭畫面絕不儲存，也不上傳。",
         },
       ],
     },
     start: {
-      title: "實現雙手自由",
+      title: "安裝與設定",
       steps: [
         { title: "下載", text: "Windows 版免費，約 70 MB。任何視訊鏡頭都能用，連 Android 手機當鏡頭也行。" },
         {
@@ -224,25 +224,25 @@ export const home: Record<string, HomeText> = {
     },
     benefits: {
       kicker: "ジェスチャー → キー",
-      title: "顔がコントローラー",
-      text: "eyeokuriはWebカメラであなたを見守って、代わりにキーを押します。できることはこの3つ。",
+      title: "両手が空きました。使い道はご自由に",
+      text: "eyeokuriはWebカメラであなたを見守って、代わりにキーを押します。",
       items: [
         {
-          title: "手を休ませる",
-          text: "まばたきで読み進められます。Enterもクリックも要らないので、長いルートを読んでも手が疲れません。休みたいときは首を振るだけ。",
+          title: "手が疲れない",
+          text: "腱鞘炎の負担を軽くして、空いた手でポップコーンをどうぞ。",
         },
         {
           title: "あなた仕様に",
-          text: "ウィザードがあなたのまばたきを学習します。もっと欲しければ、うなずきや長めのまばたきなど、自分のジェスチャーを作ってキーを割り当てられます。",
+          text: "ウィザードがあなたのまばたきを学習します。もっと欲しければ、自分だけのジェスチャーも作れます。",
         },
         {
           title: "プライバシー重視",
-          text: "カメラ映像はPCのメモリの中だけ。eyeokuriは1フレームも保存・送信しません。コードは公開なので、自分で確かめられます。",
+          text: "カメラ映像は保存もアップロードもしません。",
         },
       ],
     },
     start: {
-      title: "両手が空きました。使い道はご自由に",
+      title: "インストールと設定",
       steps: [
         { title: "ダウンロード", text: "Windows用で無料、約70 MB。Webカメラならなんでも動きます。AndroidスマホをWebカメラにしてもOK。" },
         {
