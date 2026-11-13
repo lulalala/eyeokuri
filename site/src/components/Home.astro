@@ -1,22 +1,14 @@
 ---
-// The homepage: a visual novel title screen as the hero, then what it does, how to start, and a share band.
+// The homepage: a visual novel title screen as the hero, then three benefits, how to start, and a share band.
 import "../styles/home.css";
 import logoSource from "../../../logo/eye-blink.svg?raw";
 import { home } from "../i18n/home";
-
-// Screenshots show the GUI in the page's language; English lives at the folder root.
-const shots = import.meta.glob<{ default: ImageMetadata }>("../assets/screenshots/**/main-window.png", {
-  eager: true,
-});
 
 interface Props {
   locale: string;
 }
 const { locale } = Astro.props;
 const t = home[locale];
-const mainWindow = (
-  shots[`../assets/screenshots/${locale}/main-window.png`] ?? shots["../assets/screenshots/main-window.png"]
-).default;
 const REPO = "https://github.com/lulalala/eyeokuri";
 // GitHub redirects this to the installer in the newest published release
 const SETUP_URL = `${REPO}/releases/latest/download/eyeokuri-setup.exe`;
@@ -132,15 +124,15 @@ const ogImage = Astro.site ? new URL(`${base}/${locale === "en" ? "og" : `og-${l
   </section>
   </main>
 
-  <section class="sec controls" id="gestures">
-    <div class="intro">
-      <span class="kicker">{t.gestures.kicker}</span>
-      <h2>{t.gestures.title}</h2>
-      <p>{t.gestures.text}</p>
-    </div>
-    <div class="panel">
-      <div class="shot"><img src={mainWindow.src} alt={t.gestures.shotAlt} loading="lazy"></div>
-    </div>
+  <section class="sec benefits" id="benefits">
+    <span class="kicker">{t.benefits.kicker}</span>
+    <h2>{t.benefits.title}</h2>
+    <p class="lead">{t.benefits.text}</p>
+    <ul class="perks">
+      {t.benefits.items.map((b) => (
+        <li><h3>{b.title}</h3><p>{b.text}</p></li>
+      ))}
+    </ul>
   </section>
 
   <section class="sec start" id="install">

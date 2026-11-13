@@ -21,11 +21,11 @@ export interface HomeText {
   enterSent: string;
   lines: string[];
   share: { copy: string; copied: string; message: string };
-  gestures: {
+  benefits: {
     kicker: string;
     title: string;
     text: string;
-    shotAlt: string;
+    items: { title: string; text: string }[];
   };
   start: { title: string; steps: { title: string; text: string }[]; button: string; trust: string[] };
   pass: { title: string; star: string; donate: string; request: string };
@@ -69,11 +69,24 @@ export const home: Record<string, HomeText> = {
       copied: "Copied",
       message: "Blink. Next line. Read your visual novel hands-free with eyeokuri.",
     },
-    gestures: {
+    benefits: {
       kicker: "gesture → key",
       title: "Your face is the controller",
-      text: "eyeokuri watches your webcam and presses keys for you. Blink to read on, and shake your head when you need a break.",
-      shotAlt: "The eyeokuri window: a list of gestures with their keys and on switches, and the start of the log",
+      text: "eyeokuri watches your webcam and presses keys for you.",
+      items: [
+        {
+          title: "Rest your hands",
+          text: "Blink to read on. No Enter key, no mouse clicks, no sore hands after a long route. Shake your head when you need a break.",
+        },
+        {
+          title: "Tuned to you",
+          text: "A wizard learns how you blink. Want more? Build your own gestures, like a nod or a long blink, and give each one a key.",
+        },
+        {
+          title: "Private by design",
+          text: "Camera frames stay in memory on your PC. eyeokuri never saves or uploads one, and the code is open, so you can check.",
+        },
+      ],
     },
     start: {
       title: "Your hands are free now",
@@ -132,11 +145,24 @@ export const home: Record<string, HomeText> = {
       copied: "已複製",
       message: "眨眼，下一句。用 eyeokuri，雙手不碰鍵盤也能讀視覺小說。",
     },
-    gestures: {
+    benefits: {
       kicker: "動作 → 按鍵",
       title: "你的臉就是控制器",
-      text: "eyeokuri 透過視訊鏡頭看著你，替你按下按鍵。眨眼繼續讀，想休息就搖搖頭。",
-      shotAlt: "eyeokuri 視窗：動作清單，列出各動作對應的按鍵與開關，下方是記錄的開頭",
+      text: "eyeokuri 透過視訊鏡頭看著你，替你按下按鍵。你會得到這些好處。",
+      items: [
+        {
+          title: "讓雙手休息",
+          text: "眨眼就繼續讀，不用按 Enter、不用點滑鼠，讀完一整條路線手也不痠。想休息就搖搖頭。",
+        },
+        {
+          title: "為你量身調整",
+          text: "內建精靈會學習你的眨眼方式。還不夠？自訂動作吧，像是點頭或長眨眼，每個動作都能指定一個按鍵。",
+        },
+        {
+          title: "隱私優先",
+          text: "鏡頭畫面只留在你電腦的記憶體裡，eyeokuri 一格都不會儲存或上傳。程式碼公開，歡迎自己檢查。",
+        },
+      ],
     },
     start: {
       title: "實現雙手自由",
@@ -196,11 +222,24 @@ export const home: Record<string, HomeText> = {
       copied: "コピーしました",
       message: "まばたきで、次のセリフへ。eyeokuriでビジュアルノベルを手ぶらで読もう。",
     },
-    gestures: {
+    benefits: {
       kicker: "ジェスチャー → キー",
       title: "顔がコントローラー",
-      text: "eyeokuriはWebカメラであなたを見守って、代わりにキーを押します。まばたきで読み進めて、休みたいときは首を振るだけ。",
-      shotAlt: "eyeokuriのウィンドウ:ジェスチャーの一覧(各キーとオンのスイッチ)と、ログの冒頭",
+      text: "eyeokuriはWebカメラであなたを見守って、代わりにキーを押します。できることはこの3つ。",
+      items: [
+        {
+          title: "手を休ませる",
+          text: "まばたきで読み進められます。Enterもクリックも要らないので、長いルートを読んでも手が疲れません。休みたいときは首を振るだけ。",
+        },
+        {
+          title: "あなた仕様に",
+          text: "ウィザードがあなたのまばたきを学習します。もっと欲しければ、うなずきや長めのまばたきなど、自分のジェスチャーを作ってキーを割り当てられます。",
+        },
+        {
+          title: "プライバシー重視",
+          text: "カメラ映像はPCのメモリの中だけ。eyeokuriは1フレームも保存・送信しません。コードは公開なので、自分で確かめられます。",
+        },
+      ],
     },
     start: {
       title: "両手が空きました。使い道はご自由に",

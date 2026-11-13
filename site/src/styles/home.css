@@ -1,4 +1,4 @@
-/* Layout: a 16:9 visual novel title screen as the hero, then controls, start steps and a share band. */
+/* Layout: a 16:9 visual novel title screen as the hero, then benefits, start steps and a share band. */
 :root {
   color-scheme: light;
   --paper: #F8F9FF;      /* page ground, faint blue */
@@ -230,16 +230,13 @@ nav { width: min(100%, max(calc((100vh - 110px) * 16 / 9), 560px)); margin-inlin
 .kicker { margin-bottom: 14px; background: var(--sakura-soft); }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
-/* What it does: a game's controls screen */
-.controls { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 48px; align-items: center; }
-.controls .intro p { margin: 0; font-size: 18px; max-width: 34ch; }
-/* Crop the 834x512px screenshot by trimming pixels from each side (edit the four numbers), shown at 2x
-   and scaled down with the column on narrow screens, so the crop never changes. */
-.shot { border: 1px solid lightskyblue; box-shadow: 0 10px 30px -12px rgba(80,70,180,.35); --crop-top: 55; --crop-right: 535; --crop-bottom: 260; --crop-left: 2;
-  --w: calc(834 - var(--crop-left) - var(--crop-right)); --h: calc(512 - var(--crop-top) - var(--crop-bottom));
-  position: relative; overflow: hidden; width: 100%; max-width: calc(var(--w) * 2px); aspect-ratio: calc(var(--w)) / calc(var(--h)); }
-.shot img { position: absolute; max-width: none; width: calc(834 / var(--w) * 100%); left: calc(var(--crop-left) / var(--w) * -100%); top: calc(var(--crop-top) / var(--h) * -100%); }
-.panel-foot { margin: 14px 0 0; font-size: 15px; }
+/* What you get: three benefit cards, same card look as the steps below */
+.benefits { text-align: center; }
+.benefits .lead { margin: 0 auto; max-width: 46ch; font-size: 18px; }
+.perks { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin: 32px 0 0; padding: 0; text-align: left; }
+.perks li { background: #fff; border-radius: 24px; padding: 26px 24px 28px; border-top: 6px solid var(--sakura); box-shadow: 0 10px 30px -18px rgba(80,70,180,.4); }
+.perks h3 { margin: 0 0 8px; font-size: 22px; font-weight: 900; line-height: 1.2; color: var(--ink); }
+.perks p { margin: 0; font-size: 16px; }
 
 /* How to start: three steps, then the one download button */
 .start { text-align: center; }
@@ -270,7 +267,7 @@ footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10
 
 @media (max-width: 760px) {
   .sec { margin-top: 64px; }
-  .controls { grid-template-columns: 1fr; gap: 24px; }
+  .perks { grid-template-columns: 1fr; }
   .steps { grid-template-columns: 1fr; }
   .pass { padding: 32px 16px; }
   footer { justify-content: center; text-align: center; }
